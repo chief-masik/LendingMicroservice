@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: chief-masik
+      comment: "Add some info in tariff"
+      changes:
+        - insert:
+            tableName: tariff
+            columns:
+              - column:
+                  name: type
+                  value: "standard"
+              - column:
+                  name: interest_rate
+                  value: "10%"
+        - insert:
+            tableName: tariff
+            columns:
+              - column:
+                  name: type
+                  value: "premium"
+              - column:
+                  name: interest_rate
+                  value: "8%"
