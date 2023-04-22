@@ -5,12 +5,12 @@ databaseChangeLog:
       comment: "modification loan_order"
       changes:
         - update:
-            tableName: LoanOrder
+            tableName: loan_order
             columns:
               - column:
                   name: tariff_id
-                  value: 3
+                  value: 4
             whereParams:
               - column:
                   name: id
-                  value: 2
+                  value: 1

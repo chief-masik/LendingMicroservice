@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: chief-masik
+      comment: "create loan_order table"
+      changes:
+        - createTable:
+            tableName: loan_order
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: uuid
+                  defaultValueComputed: 'random_uuid()'
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tariff_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: "fk_tariff_id"
+                    referencedTableName: tariff
+                    referencedColumnNames: id
+              - column:
+                  name: credit_rating
+                  type: double
+                  defaultValueComputed: 'RANDOM() * (0.9 - 0.1) + 0.1'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  defaultValue: 'IN_PROGRESS'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_insert
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_update
+                  type: timestamp
+                  defaultValueComputed: 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+                  constraints:
+                    nullable: false

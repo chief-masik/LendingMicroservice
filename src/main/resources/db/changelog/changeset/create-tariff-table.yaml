@@ -1,10 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: chief-masik
+      comment: "create tariff table"
+      changes:
+        - createTable:
+            tableName: tariff
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: interest_rate
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
