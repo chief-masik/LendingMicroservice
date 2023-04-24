@@ -5,7 +5,3 @@ databaseChangeLog:
       file: db/changelog/changeset/create-loan-order-table.yaml
   - include:
       file: db/changelog/changeset/insert-data-in-tariff-table.yaml
-  - include:
-      file: db/changelog/changeset/insert-data-in-loan-order-table.yaml
-  - include:
-      file: db/changelog/changeset/modification1-loan-order-table.yaml

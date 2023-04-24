@@ -12,13 +12,22 @@ databaseChangeLog:
                   value: "standard"
               - column:
                   name: interest_rate
-                  value: "10%"
+                  value: "12%"
         - insert:
             tableName: tariff
             columns:
               - column:
                   name: type
                   value: "premium"
+              - column:
+                  name: interest_rate
+                  value: "9.9%"
+        - insert:
+            tableName: tariff
+            columns:
+              - column:
+                  name: type
+                  value: "elite"
               - column:
                   name: interest_rate
                   value: "8%"
