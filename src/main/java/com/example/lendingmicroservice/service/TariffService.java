@@ -7,6 +7,6 @@ import java.util.ArrayList;
 
 public interface TariffService {
     public ArrayList<Tariff> getTariffs();
-    public void isTariff(long id) throws ResponseStatusException;
+    public void isTariff(long id);
 
 }

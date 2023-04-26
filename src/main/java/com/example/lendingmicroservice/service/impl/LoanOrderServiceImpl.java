@@ -1,25 +1,26 @@
 package com.example.lendingmicroservice.service.impl;
 
+import com.example.lendingmicroservice.constants.CodeEnum;
 import com.example.lendingmicroservice.constants.StatusEnum;
 import com.example.lendingmicroservice.entity.LoanOrder;
 import com.example.lendingmicroservice.entity.LoanOrderCreateDTO;
-import com.example.lendingmicroservice.entity.Tariff;
 import com.example.lendingmicroservice.repository.LoanOrderRepository;
+import com.example.lendingmicroservice.response.exception.BusinessException;
 import com.example.lendingmicroservice.service.LoanOrderService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoanOrderServiceImpl implements LoanOrderService {
@@ -28,45 +29,80 @@ public class LoanOrderServiceImpl implements LoanOrderService {
 
     @Override
     @Transactional
-    public UUID setNewLoanOrder(LoanOrderCreateDTO loanOrderDTO) throws ResponseStatusException {
+    @Cacheable(cacheNames = "cacheNewOrder")
+    @CircuitBreaker(name = "newLoanOrderCircuitBreaker", fallbackMethod = "fallbackMethod")
+    public UUID setNewLoanOrder(LoanOrderCreateDTO loanOrderDTO) {
 
-        LoanOrder loanOrder1 = loanOrderRepository.findByUserId(loanOrderDTO.getUserId(), loanOrderDTO.getTariffId());
-
-        if(loanOrder1 == null) {
-            double creditRating = Math.floor((0.1 + Math.random() * 0.81) * 100.0) / 100.0;
-            int i = loanOrderRepository.saveNewLoanOrder(UUID.randomUUID(), loanOrderDTO.getUserId(), loanOrderDTO.getTariffId(), creditRating, startStatus, LocalDateTime.now());
-            if(i == 0)
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The loan order was not created");
-            return loanOrderRepository.findByUserId(loanOrderDTO.getUserId(), loanOrderDTO.getTariffId()).getOrderId();
-
-        } else {
-            String status = loanOrder1.getStatus();
-            if (status.equals(StatusEnum.IN_PROGRESS.toString())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "LOAN_CONSIDERATION");
-            } else if (status.equals(StatusEnum.APPROVED.toString())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "LOAN_ALREADY_APPROVED");
-            } else if (status.equals(StatusEnum.REFUSED.toString()) && ChronoUnit.SECONDS.between(loanOrder1.getTimeUpdate(), LocalDateTime.now()) < 120) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TRY_LATER");
+        ArrayList<LoanOrder> orders = loanOrderRepository.findByUserIdAndTariffId(loanOrderDTO.getUserId(), loanOrderDTO.getTariffId());
+        for(LoanOrder order: orders) {
+            String orderStatus = order.getStatus();
+            if (orderStatus.equals(StatusEnum.IN_PROGRESS.toString())) {
+                throw BusinessException.builder()
+                        .code(CodeEnum.LOAN_CONSIDERATION)
+                        .message("Заявка на рассмотрении")
+                        .httpStatus(HttpStatus.BAD_REQUEST).build();
+            } else if (orderStatus.equals(StatusEnum.APPROVED.toString())) {
+                throw BusinessException.builder()
+                        .code(CodeEnum.LOAN_ALREADY_APPROVED)
+                        .message("Заявка уже одобрена")
+                        .httpStatus(HttpStatus.BAD_REQUEST).build();
+            } else if (orderStatus.equals(StatusEnum.REFUSED.toString()) && ChronoUnit.SECONDS.between(order.getTimeUpdate(), LocalDateTime.now()) < 120) {
+                throw BusinessException.builder()
+                        .code(CodeEnum.TRY_LATER)
+                        .message("Попробуйте позже")
+                        .httpStatus(HttpStatus.BAD_REQUEST).build();
             }
-            else throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
+        final double creditRating = Math.floor((0.1 + Math.random() * 0.81) * 100.0) / 100.0;
+        final UUID uuid = UUID.randomUUID();
+        int i = loanOrderRepository.saveNewLoanOrder(uuid, loanOrderDTO.getUserId(), loanOrderDTO.getTariffId(), creditRating, startStatus, LocalDateTime.now());
+        if (i == 0)
+            throw BusinessException.builder()
+                    .code(CodeEnum.ORDER_NOT_CREATED)
+                    .message("Попробуйте еще раз")
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return uuid;
     }
 
     @Override
     @Transactional
+    @Cacheable("cacheGetStatus")
     public String getStatusOrder(UUID orderId) {
 
+        try {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException e) {
+            log.error("time sleep error");
+        }
+        log.error("getStatusOrder run");
         String status = loanOrderRepository.getStatus(orderId);
         if (status == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ORDER_NOT_FOUND");
-        return status;
+            throw BusinessException.builder()
+                    .code(CodeEnum.ORDER_NOT_FOUND)
+                    .message("Заявка не найдена")
+                    .httpStatus(HttpStatus.BAD_REQUEST).build();
+        else
+            return status;
     }
 
     @Override
     @Transactional
     public void deleteLoanOrder(Long userId, UUID orderId) {
 
-        if (loanOrderRepository.deleteByUserIdAndOrderId(userId, orderId) == 0)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ORDER_IMPOSSIBLE_TO_DELETE");
+        int a = loanOrderRepository.deleteByUserIdAndOrderId(userId, orderId);
+        if (a == 0)
+            throw BusinessException.builder()
+                    .code(CodeEnum.ORDER_IMPOSSIBLE_TO_DELETE)
+                    .message("Невозможно удалить заявку")
+                    .httpStatus(HttpStatus.BAD_REQUEST).build();
+    }
+
+    public UUID fallbackMethod(LoanOrderCreateDTO loanOrderDTO, Throwable throwable) {
+        log.error("start fallbackMethod");
+        throw BusinessException.builder()
+                .code(CodeEnum.SERVICE_UNAVAILABLE)
+                .message("Сервис временное недоступен")
+                .httpStatus(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 }

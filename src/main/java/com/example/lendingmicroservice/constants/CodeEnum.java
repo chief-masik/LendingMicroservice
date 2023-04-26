@@ -1,0 +1,14 @@
+package com.example.lendingmicroservice.constants;
+
+public enum CodeEnum {
+    LOAN_CONSIDERATION,
+    LOAN_ALREADY_APPROVED,
+    TRY_LATER,
+    LOAN_REFUSED,
+    TARIFF_NOT_FOUND,
+    ORDER_NOT_FOUND,
+    ORDER_IMPOSSIBLE_TO_DELETE,
+    ORDER_NOT_CREATED,
+    INTERNAL_SERVER_ERROR,
+    SERVICE_UNAVAILABLE
+}

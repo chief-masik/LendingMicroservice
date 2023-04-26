@@ -8,7 +8,6 @@ import lombok.NonNull;
 @Entity
 public class Tariff {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private String type;
     private String interestRate;

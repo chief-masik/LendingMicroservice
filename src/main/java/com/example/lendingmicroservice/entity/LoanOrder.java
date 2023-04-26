@@ -14,7 +14,6 @@ import java.util.UUID;
 @Entity
 public class LoanOrder {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private UUID orderId;
     private Long userId;
@@ -24,10 +23,4 @@ public class LoanOrder {
     private LocalDateTime timeInsert;
     private LocalDateTime timeUpdate;
 
-    /*
-    public void setStatus(String status) {
-        this.status = StatusEnum.valueOf(status);
-    }
-
-     */
 }
