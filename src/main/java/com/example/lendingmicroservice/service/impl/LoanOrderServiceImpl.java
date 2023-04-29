@@ -6,12 +6,15 @@ import com.example.lendingmicroservice.entity.LoanOrder;
 import com.example.lendingmicroservice.entity.LoanOrderCreateDTO;
 import com.example.lendingmicroservice.repository.LoanOrderRepository;
 import com.example.lendingmicroservice.response.exception.BusinessException;
+import com.example.lendingmicroservice.response.exception.FallbackException;
 import com.example.lendingmicroservice.service.LoanOrderService;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -23,19 +26,37 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@EnableHystrix
 public class LoanOrderServiceImpl implements LoanOrderService {
     private final LoanOrderRepository loanOrderRepository;
     private final String startStatus = StatusEnum.IN_PROGRESS.toString();
+    private static int k = 0;
 
     @Override
     @Transactional
-    @Cacheable(cacheNames = "cacheNewOrder")
-    @CircuitBreaker(name = "newLoanOrderCircuitBreaker", fallbackMethod = "fallbackMethod")
-    public UUID setNewLoanOrder(LoanOrderCreateDTO loanOrderDTO) {
+    @HystrixCommand(fallbackMethod = "fallbackMethod", ignoreExceptions = BusinessException.class, commandProperties = {
+            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "500"),
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "3"),         // после скольки запросов раздупляется
+            @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),      // %
+            @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "3000"),  // время офа
 
+            @HystrixProperty(name = "execution.isolation.thread.interruptOnTimeout", value = "true")   // должно ли HystrixCommand.run() прерываться при истечении времени ожидания.
+    })
+    public void canCreateLoanOrder(LoanOrderCreateDTO loanOrderDTO){
+        k++;
+        log.info("canCreateLoanOrder run; k = " + k);
+
+        if(k < 5){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.error("time sleep error");
+            }
+        }
+        String orderStatus;
         ArrayList<LoanOrder> orders = loanOrderRepository.findByUserIdAndTariffId(loanOrderDTO.getUserId(), loanOrderDTO.getTariffId());
         for(LoanOrder order: orders) {
-            String orderStatus = order.getStatus();
+            orderStatus = order.getStatus();
             if (orderStatus.equals(StatusEnum.IN_PROGRESS.toString())) {
                 throw BusinessException.builder()
                         .code(CodeEnum.LOAN_CONSIDERATION)
@@ -53,6 +74,13 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                         .httpStatus(HttpStatus.BAD_REQUEST).build();
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public UUID setNewLoanOrder(LoanOrderCreateDTO loanOrderDTO) {
+
+        log.info("setNewLoanOrder run");
         final double creditRating = Math.floor((0.1 + Math.random() * 0.81) * 100.0) / 100.0;
         final UUID uuid = UUID.randomUUID();
         int i = loanOrderRepository.saveNewLoanOrder(uuid, loanOrderDTO.getUserId(), loanOrderDTO.getTariffId(), creditRating, startStatus, LocalDateTime.now());
@@ -66,7 +94,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
 
     @Override
     @Transactional
-    @Cacheable("cacheGetStatus")
+    @Cacheable(cacheNames = "cacheGetStatusOrder")
     public String getStatusOrder(UUID orderId) {
 
         try {
@@ -75,7 +103,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
         catch (InterruptedException e) {
             log.error("time sleep error");
         }
-        log.error("getStatusOrder run");
+        log.info("getStatusOrder run");
         String status = loanOrderRepository.getStatus(orderId);
         if (status == null)
             throw BusinessException.builder()
@@ -98,9 +126,9 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                     .httpStatus(HttpStatus.BAD_REQUEST).build();
     }
 
-    public UUID fallbackMethod(LoanOrderCreateDTO loanOrderDTO, Throwable throwable) {
+    public void fallbackMethod(LoanOrderCreateDTO loanOrderDTO) {
         log.error("start fallbackMethod");
-        throw BusinessException.builder()
+        throw FallbackException.builder()
                 .code(CodeEnum.SERVICE_UNAVAILABLE)
                 .message("Сервис временное недоступен")
                 .httpStatus(HttpStatus.SERVICE_UNAVAILABLE).build();

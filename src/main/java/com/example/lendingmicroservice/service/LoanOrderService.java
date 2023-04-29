@@ -12,6 +12,7 @@ import java.util.UUID;
 @Service
 @RequestMapping("loan-service")
 public interface LoanOrderService {
+    public void canCreateLoanOrder (LoanOrderCreateDTO loanOrder);
     public UUID setNewLoanOrder (LoanOrderCreateDTO loanOrder);
     public String getStatusOrder(UUID orderId);                 // Нужно решиться String или StatusEnum
     public void deleteLoanOrder(Long userId, UUID orderId);

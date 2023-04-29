@@ -24,7 +24,7 @@ public class TariffServiceImpl implements TariffService {
         return tariffRepository.findAll();
     }
     @Override
-    public void isTariff(long id) throws ResponseStatusException {
+    public void checkTariffExistence(long id) throws ResponseStatusException {
         if(tariffRepository.findById(id) == null)
             throw BusinessException.builder()
                     .code(CodeEnum.TARIFF_NOT_FOUND)

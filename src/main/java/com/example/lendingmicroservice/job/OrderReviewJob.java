@@ -23,12 +23,10 @@ public class OrderReviewJob {
     private final Random random = new Random();
 
     @Transactional
-    //@CacheEvict(cacheNames = "cacheNewOrder")
-    @Scheduled(cron = "*/30 * * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     @SchedulerLock(name = "orderReview")
     public void orderReview() throws InterruptedException {
 
-        //log.info("кэш метода setNewLoanOrder очистился");
         for(LoanOrder order: loanOrderRepository.findByStatus(StatusEnum.IN_PROGRESS.toString())) {
             if(random.nextInt(2) == 1) {
                 loanOrderRepository.updateStatus(order.getOrderId(), StatusEnum.APPROVED.toString(), LocalDateTime.now());
@@ -40,10 +38,16 @@ public class OrderReviewJob {
             }
         }
     }
-    /*
-    @CacheEvict(cacheNames = "cacheGetStatus")
-    @Scheduled(cron = "* /15 * * * * *")
+
+    @Scheduled(cron = "0 */30 * ? * *")
+    @CacheEvict(cacheNames = "cacheСanCreateLoanOrder", allEntries = true)
+    public void evictCacheSetOrder() {
+        log.info("кэш метода СanCreateLoanOrder очистился");
+    }
+
+    @Scheduled(cron = "0 */30 * ? * *")
+    @CacheEvict(cacheNames = "cacheGetStatusOrder", allEntries = true)
     public void evictCacheGetStatus() {
-        log.info("кэш метода GetStatus очистился");
-    }*/
+        log.info("кэш метода getStatusOrder очистился");
+    }
 }

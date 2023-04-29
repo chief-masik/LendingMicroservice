@@ -1,6 +1,8 @@
 package com.example.lendingmicroservice.constants;
 
 public enum CodeEnum {
+    PARIRAMCHIKI,
+    PLOHO,
     LOAN_CONSIDERATION,
     LOAN_ALREADY_APPROVED,
     TRY_LATER,

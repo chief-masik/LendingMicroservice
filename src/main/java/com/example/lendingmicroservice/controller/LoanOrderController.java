@@ -25,7 +25,8 @@ public class LoanOrderController {
 
     @PostMapping("order")
     public ResponseEntity<?> newOrder(@RequestBody LoanOrderCreateDTO loanOrderCreateDTO) {
-        tariffService.isTariff(loanOrderCreateDTO.getTariffId());
+        tariffService.checkTariffExistence(loanOrderCreateDTO.getTariffId());
+        loanOrderService.canCreateLoanOrder(loanOrderCreateDTO);
         return ResponseEntity.ok(ResponseData.builder().data(loanOrderService.setNewLoanOrder(loanOrderCreateDTO)).build());
     }
 
@@ -38,7 +39,4 @@ public class LoanOrderController {
     public void deleteLoanOrder(@RequestBody LoanOrderDeleteDTO loanOrderDeleteDTO) {
         loanOrderService.deleteLoanOrder(loanOrderDeleteDTO.getUserId(), loanOrderDeleteDTO.getOrderId());
     }
-
-
-
 }

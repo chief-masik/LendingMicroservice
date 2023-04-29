@@ -1,5 +1,6 @@
 package com.example.lendingmicroservice.config;
 
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class ApplicationConfig {
+
+    @Bean
+    public HystrixCommandAspect hystrixCommandAspect() {
+        return new HystrixCommandAspect();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
