@@ -1,0 +1,13 @@
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master-test.yaml
+  datasource:
+    url: jdbc:h2:mem:loan_db_test;
+    driverClassName: org.h2.Driver
+    username: masik
+    password: 111
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none

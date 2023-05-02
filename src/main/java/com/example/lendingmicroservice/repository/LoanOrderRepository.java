@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -19,14 +20,14 @@ public interface LoanOrderRepository extends JpaRepository<LoanOrder, Long> {
     String GET_STATUS = "SELECT STATUS FROM LOAN_ORDER WHERE ORDER_ID=?";
     String UPDATE_STATUS = "UPDATE LOAN_ORDER SET STATUS=?2, TIME_UPDATE=?3 WHERE ORDER_ID=?1";
     String INSERT = "INSERT INTO LOAN_ORDER (ORDER_ID, USER_ID, TARIFF_ID, CREDIT_RATING, STATUS, TIME_INSERT, TIME_UPDATE) VALUES (:orderId, :userId, :tariffId, :creditRating, :status, :timeInsert, :timeInsert)";
-    String DELETE_BY_USER_ID_AND_ORDER_ID = " DELETE FROM LOAN_ORDER WHERE USER_ID=? AND ORDER_ID=?";
+    String DELETE_BY_USER_ID_AND_ORDER_ID = "DELETE FROM LOAN_ORDER WHERE USER_ID=? AND ORDER_ID=?";
 
     @Query(value = FIND_ALL, nativeQuery = true)
-    public ArrayList<LoanOrder> findAll();
+    public List<LoanOrder> findAll();
     @Query(value = FIND_BY_USER_ID_AND_TARIFF_ID, nativeQuery = true)
-    public ArrayList<LoanOrder> findByUserIdAndTariffId(Long userId, Long tariffId);
+    public List<LoanOrder> findByUserIdAndTariffId(Long userId, Long tariffId);
     @Query(value = FIND_BY_STATUS, nativeQuery = true)
-    public ArrayList<LoanOrder> findByStatus(String status);
+    public List<LoanOrder> findByStatus(String status);
 
     @Query(value = GET_STATUS, nativeQuery = true)
     public String getStatus(UUID orderId);
@@ -36,7 +37,7 @@ public interface LoanOrderRepository extends JpaRepository<LoanOrder, Long> {
 
     @Modifying
     @Query(value = INSERT, nativeQuery = true)
-    public int saveNewLoanOrder(UUID orderId, Long userId, Long tariffId, double creditRating, String status, LocalDateTime timeInsert);
+    public int saveLoanOrder(UUID orderId, Long userId, Long tariffId, Double creditRating, String status, LocalDateTime timeInsert);
     @Modifying
     @Query(value = DELETE_BY_USER_ID_AND_ORDER_ID, nativeQuery = true)
     public int deleteByUserIdAndOrderId(Long userId, UUID orderId);

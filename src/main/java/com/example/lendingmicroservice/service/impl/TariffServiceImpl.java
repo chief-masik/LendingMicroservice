@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,12 +21,12 @@ public class TariffServiceImpl implements TariffService {
 
     private final TariffRepository tariffRepository;
     @Override
-    public ArrayList<Tariff> getTariffs() {
+    public List<Tariff> getAllTariffs() {
         return tariffRepository.findAll();
     }
     @Override
-    public void checkTariffExistence(long id) throws ResponseStatusException {
-        if(tariffRepository.findById(id) == null)
+    public void checkTariffExistence(Long id) {
+        if(tariffRepository.getTariffById(id) == null)
             throw BusinessException.builder()
                     .code(CodeEnum.TARIFF_NOT_FOUND)
                     .message("Тариф не найден")

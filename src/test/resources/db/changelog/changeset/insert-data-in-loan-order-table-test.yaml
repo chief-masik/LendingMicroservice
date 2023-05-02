@@ -1,0 +1,102 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: chief-masik
+      comment: "Add some info in loanOrder table"
+      changes:
+        - insert:
+            tableName: loan_order
+            columns:
+              - column:
+                  name: order_id
+                  value: "80bb0833-47e8-43e4-84fa-a3b045c7abe1"
+              - column:
+                  name: user_id
+                  value: "11111111"
+              - column:
+                  name: tariff_id
+                  value: "1"
+              - column:
+                  name: credit_rating
+                  value: "0.75"
+              - column:
+                  name: status
+                  value: "APPROVED"
+              - column:
+                  name: time_insert
+                  value: "2023-04-24 01:36:15"
+              - column:
+                  name: time_update
+                  value: "2023-04-24 01:38:15"
+        - insert:
+            tableName: loan_order
+            columns:
+              - column:
+                  name: order_id
+                  value: "f9f3fd66-f38e-40a5-b3a2-94d625827414"
+              - column:
+                  name: user_id
+                  value: "22222222"
+              - column:
+                  name: tariff_id
+                  value: "2"
+              - column:
+                  name: credit_rating
+                  value: "0.65"
+              - column:
+                  name: status
+                  value: "REFUSED"
+              - column:
+                  name: time_insert
+                  value: now()
+              - column:
+                  name: time_update
+                  value: now()
+        - insert:
+            tableName: loan_order
+            columns:
+              - column:
+                  name: order_id
+                  value: "478b51d3-e71d-4256-acd4-fac07da3720a"
+              - column:
+                  name: user_id
+                  value: "33333333"
+              - column:
+                  name: tariff_id
+                  value: "3"
+              - column:
+                  name: credit_rating
+                  value: "0.55"
+              - column:
+                  name: status
+                  value: "IN_PROGRESS"
+              - column:
+                  name: time_insert
+                  value: "2023-04-24 03:36:15"
+              - column:
+                  name: time_update
+                  value: "2023-04-24 03:36:15"
+        - insert:
+            tableName: loan_order
+            columns:
+              - column:
+                  name: order_id
+                  value: "ee7194f2-e908-11ed-a05b-0242ac120003"
+              - column:
+                  name: user_id
+                  value: "44444444"
+              - column:
+                  name: tariff_id
+                  value: "1"
+              - column:
+                  name: credit_rating
+                  value: "0.77"
+              - column:
+                  name: status
+                  value: "IN_PROGRESS"
+              - column:
+                  name: time_insert
+                  value: "2023-04-24 04:36:15"
+              - column:
+                  name: time_update
+                  value: "2023-04-24 04:36:15"

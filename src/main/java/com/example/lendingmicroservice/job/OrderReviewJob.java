@@ -21,28 +21,22 @@ public class OrderReviewJob {
 
     private final LoanOrderRepository loanOrderRepository;
     private final Random random = new Random();
+    private StatusEnum statusEnum;
 
     @Transactional
     @Scheduled(cron = "0 */30 * * * *")
     @SchedulerLock(name = "orderReview")
     public void orderReview() throws InterruptedException {
-
         for(LoanOrder order: loanOrderRepository.findByStatus(StatusEnum.IN_PROGRESS.toString())) {
-            if(random.nextInt(2) == 1) {
-                loanOrderRepository.updateStatus(order.getOrderId(), StatusEnum.APPROVED.toString(), LocalDateTime.now());
-                log.info("orderReview set status = APPROVED by " + order.getId() + " order");
-            }
-            else {
-                loanOrderRepository.updateStatus(order.getOrderId(), StatusEnum.REFUSED.toString(), LocalDateTime.now());
-                log.info("orderReview set status = REFUSED by " + order.getId() + " order");
-            }
-        }
-    }
 
-    @Scheduled(cron = "0 */30 * ? * *")
-    @CacheEvict(cacheNames = "cacheСanCreateLoanOrder", allEntries = true)
-    public void evictCacheSetOrder() {
-        log.info("кэш метода СanCreateLoanOrder очистился");
+            if(random.nextInt(2) == 1)
+                statusEnum = StatusEnum.APPROVED;
+            else
+                statusEnum = StatusEnum.REFUSED;
+
+            loanOrderRepository.updateStatus(order.getOrderId(), statusEnum.toString(), LocalDateTime.now());
+            log.info("orderReview set status = " + statusEnum + " by " + order.getId() + " order");
+        }
     }
 
     @Scheduled(cron = "0 */30 * ? * *")

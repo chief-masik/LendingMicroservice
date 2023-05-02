@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changeset/create-tariff-table-test.yaml
+  - include:
+      file: db/changelog/changeset/create-loan-order-table-test.yaml
+  - include:
+      file: db/changelog/changeset/create-shedlock-table-test.yaml
+  - include:
+      file: db/changelog/changeset/insert-data-in-tariff-table-test.yaml
+  - include:
+      file: db/changelog/changeset/insert-data-in-loan-order-table-test.yaml

@@ -9,6 +9,6 @@ import lombok.NonNull;
 @Builder
 public class Error {
     @NonNull
-    CodeEnum code;
-    String message;
+    private CodeEnum code;
+    private String message;
 }

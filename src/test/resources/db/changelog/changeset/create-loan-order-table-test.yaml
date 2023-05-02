@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: chief-masik
+      comment: "create loan_order table"
+      changes:
+        - createTable:
+            tableName: loan_order
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: uuid
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tariff_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: "fk_tariff_id"
+                    referencedTableName: tariff
+                    referencedColumnNames: id
+              - column:
+                  name: credit_rating
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_insert
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_update
+                  type: timestamp
+                  constraints:
+                    nullable: false

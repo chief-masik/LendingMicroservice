@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.concurrent.TimeoutException;
+
 @ControllerAdvice
 public class LoanOrderErrorHandler {
 
@@ -18,11 +20,11 @@ public class LoanOrderErrorHandler {
                 .status(e.getHttpStatus())
                 .body(ResponseError.builder().error(Error.builder().code(e.getCode()).message(e.getMessage()).build()).build());
     }
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponseError> handleRuntimeException(RuntimeException e) {
+    @ExceptionHandler(TimeoutException.class)
+    public ResponseEntity<ResponseError> handleTimeoutException(TimeoutException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseError.builder().error(Error.builder().code(CodeEnum.PARIRAMCHIKI).message(e.getMessage()).build()).build());
+                .body(ResponseError.builder().error(Error.builder().code(CodeEnum.TIMEOUT_EXCEPTION).message("Сервис временное недоступен").build()).build());
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseError> handleUnexpectedException(Exception e) {
