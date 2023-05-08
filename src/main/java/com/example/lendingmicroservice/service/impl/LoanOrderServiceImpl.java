@@ -2,21 +2,22 @@ package com.example.lendingmicroservice.service.impl;
 
 import com.example.lendingmicroservice.constants.CodeEnum;
 import com.example.lendingmicroservice.constants.StatusEnum;
-import com.example.lendingmicroservice.entity.LoanOrder;
-import com.example.lendingmicroservice.entity.LoanOrderCreateDTO;
-import com.example.lendingmicroservice.entity.LoanOrderDeleteDTO;
+import com.example.lendingmicroservice.entity.*;
 import com.example.lendingmicroservice.repository.LoanOrderRepository;
 import com.example.lendingmicroservice.response.exception.BusinessException;
+import com.example.lendingmicroservice.service.LoanOrderMapper;
 import com.example.lendingmicroservice.service.LoanOrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,10 +25,12 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class LoanOrderServiceImpl implements LoanOrderService {
-    private final LoanOrderRepository loanOrderRepository;
+
     private final String startStatus = StatusEnum.IN_PROGRESS.toString();
     private static int k = 0;
-
+    private final LoanOrderRepository loanOrderRepository;
+    @Autowired
+    private LoanOrderMapper loanOrderMapper;
     @Override
     public void canCreateLoanOrder(LoanOrderCreateDTO loanOrderDTO) {
         String orderStatus;
@@ -51,6 +54,19 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                         .httpStatus(HttpStatus.BAD_REQUEST).build();
             }
         }
+    }
+
+    @Override
+    public List<LoanOrderToFront> getOrdersByUserId(UserDTO user) {
+
+        List<LoanOrder> loanOrders = loanOrderRepository.findLoanOrdersToFrontByUserId(user.getUserId());
+        List<LoanOrderToFront> loanOrderToFronts = new ArrayList<>();
+
+        for(LoanOrder loanOrder: loanOrders) {
+            loanOrderToFronts.add(loanOrderMapper.toFront(loanOrder));
+        }
+
+        return loanOrderToFronts;
     }
 
     @Override
@@ -95,6 +111,4 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                     .message("Невозможно удалить заявку")
                     .httpStatus(HttpStatus.BAD_REQUEST).build();
     }
-
-
 }

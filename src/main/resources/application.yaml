@@ -7,21 +7,20 @@ spring:
   liquibase:
     enabled: true
   datasource:
-    url: jdbc:h2:file:./loan_db
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://localhost:5433/loan_db
+    driverClassName: org.postgresql.Driver
     username: masik
-    password: 111
+    password: 121232
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-  h2:
-    console:
-      enabled: true
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8081/eureka
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
 
 resilience4j:
   circuitbreaker:

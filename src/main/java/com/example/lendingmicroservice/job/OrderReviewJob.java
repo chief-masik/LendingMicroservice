@@ -24,9 +24,11 @@ public class OrderReviewJob {
     private StatusEnum statusEnum;
 
     @Transactional
-    @Scheduled(cron = "0 */30 * * * *")
+    @Scheduled(cron = "0 */30 * ? * *")
     @SchedulerLock(name = "orderReview")
     public void orderReview() throws InterruptedException {
+        //log.warn("orderReview работает");
+        //Thread.sleep(500);
         for(LoanOrder order: loanOrderRepository.findByStatus(StatusEnum.IN_PROGRESS.toString())) {
 
             if(random.nextInt(2) == 1)

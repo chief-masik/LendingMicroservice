@@ -1,6 +1,7 @@
 package com.example.lendingmicroservice.repository;
 
 import com.example.lendingmicroservice.entity.LoanOrder;
+import com.example.lendingmicroservice.entity.LoanOrderToFront;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,7 @@ import java.util.UUID;
 public interface LoanOrderRepository extends JpaRepository<LoanOrder, Long> {
 
     String FIND_ALL = "SELECT * FROM LOAN_ORDER";
+    String FIND_ORDERS_TO_FRONT_BY_USER_ID = "SELECT * FROM LOAN_ORDER WHERE USER_ID=?";
     String FIND_BY_USER_ID_AND_TARIFF_ID = "SELECT * FROM LOAN_ORDER WHERE USER_ID=? AND TARIFF_ID=?";
     String FIND_BY_STATUS = "SELECT * FROM LOAN_ORDER WHERE STATUS=?";
     String GET_STATUS = "SELECT STATUS FROM LOAN_ORDER WHERE ORDER_ID=?";
@@ -24,6 +26,8 @@ public interface LoanOrderRepository extends JpaRepository<LoanOrder, Long> {
 
     @Query(value = FIND_ALL, nativeQuery = true)
     public List<LoanOrder> findAll();
+    @Query(value = FIND_ORDERS_TO_FRONT_BY_USER_ID, nativeQuery = true)
+    public List<LoanOrder> findLoanOrdersToFrontByUserId(Long userId);
     @Query(value = FIND_BY_USER_ID_AND_TARIFF_ID, nativeQuery = true)
     public List<LoanOrder> findByUserIdAndTariffId(Long userId, Long tariffId);
     @Query(value = FIND_BY_STATUS, nativeQuery = true)
