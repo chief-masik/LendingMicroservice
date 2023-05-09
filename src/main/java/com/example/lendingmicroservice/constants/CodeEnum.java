@@ -2,6 +2,7 @@ package com.example.lendingmicroservice.constants;
 
 public enum CodeEnum {
     TIMEOUT_EXCEPTION,
+    REQUEST_TIMEOUT,
     PLOHO,
     LOAN_CONSIDERATION,
     LOAN_ALREADY_APPROVED,

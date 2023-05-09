@@ -4,22 +4,30 @@ import com.example.lendingmicroservice.constants.CodeEnum;
 import com.example.lendingmicroservice.constants.StatusEnum;
 import com.example.lendingmicroservice.entity.*;
 import com.example.lendingmicroservice.repository.LoanOrderRepository;
+import com.example.lendingmicroservice.response.error.Error;
+import com.example.lendingmicroservice.response.error.ResponseError;
 import com.example.lendingmicroservice.response.exception.BusinessException;
 import com.example.lendingmicroservice.service.LoanOrderMapper;
 import com.example.lendingmicroservice.service.LoanOrderService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.apache.bcel.classfile.Code;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Service
@@ -29,8 +37,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
     private final String startStatus = StatusEnum.IN_PROGRESS.toString();
     private static int k = 0;
     private final LoanOrderRepository loanOrderRepository;
-    @Autowired
-    private LoanOrderMapper loanOrderMapper;
+    private final LoanOrderMapper loanOrderMapper;
     @Override
     public void canCreateLoanOrder(LoanOrderCreateDTO loanOrderDTO) {
         String orderStatus;
@@ -57,6 +64,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
     }
 
     @Override
+    @Timeout(value = 1, unit = ChronoUnit.SECONDS)
     public List<LoanOrderToFront> getOrdersByUserId(UserDTO user) {
 
         List<LoanOrder> loanOrders = loanOrderRepository.findLoanOrdersToFrontByUserId(user.getUserId());
@@ -111,4 +119,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                     .message("Невозможно удалить заявку")
                     .httpStatus(HttpStatus.BAD_REQUEST).build();
     }
+
+
+
 }

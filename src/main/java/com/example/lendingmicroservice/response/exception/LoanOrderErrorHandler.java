@@ -18,19 +18,28 @@ public class LoanOrderErrorHandler {
     public ResponseEntity<ResponseError> handleMyException(BusinessException e) {
         return ResponseEntity
                 .status(e.getHttpStatus())
-                .body(ResponseError.builder().error(Error.builder().code(e.getCode()).message(e.getMessage()).build()).build());
+                .body(ResponseError.builder()
+                        .error(Error.builder()
+                                .code(e.getCode())
+                                .message(e.getMessage()).build()).build());
     }
     @ExceptionHandler(TimeoutException.class)
     public ResponseEntity<ResponseError> handleTimeoutException(TimeoutException e) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseError.builder().error(Error.builder().code(CodeEnum.TIMEOUT_EXCEPTION).message("Сервис временное недоступен").build()).build());
+                .status(HttpStatus.REQUEST_TIMEOUT)
+                .body(ResponseError.builder()
+                        .error(Error.builder()
+                                .code(CodeEnum.TIMEOUT_EXCEPTION)
+                                .message("Сервис временное недоступен").build()).build());
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseError> handleUnexpectedException(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseError.builder().error(Error.builder().code(CodeEnum.PLOHO).message(e.getMessage()).build()).build());
+                .body(ResponseError.builder()
+                        .error(Error.builder()
+                                .code(CodeEnum.PLOHO)
+                                .message(e.getMessage()).build()).build());
     }
 
 

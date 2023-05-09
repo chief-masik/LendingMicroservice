@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 7666
 
 spring:
   application:
@@ -19,7 +19,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-    enabled: true
+    enabled: false
   instance:
     instance-id: ${spring.application.name}:${random.value}
 
@@ -32,9 +32,5 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 5
         waitDurationInOpenState: 60s
         automaticTransitionFromOpenToHalfOpenEnabled: false
-        ignoreExceptions: java.lang.RuntimeException
-  timelimiter:
-    instances:
-      oneSecTimeLimiter:
-        timeout-duration: 1s
+        ignoreExceptions: com.example.lendingmicroservice.response.exception.BusinessException
 

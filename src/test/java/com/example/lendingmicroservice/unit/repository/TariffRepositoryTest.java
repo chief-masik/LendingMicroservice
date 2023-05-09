@@ -1,4 +1,4 @@
-package com.example.lendingmicroservice.repository.impl;
+package com.example.lendingmicroservice.unit.repository;
 
 import com.example.lendingmicroservice.constants.StatusEnum;
 import com.example.lendingmicroservice.entity.Tariff;

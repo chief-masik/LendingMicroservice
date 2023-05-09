@@ -1,4 +1,4 @@
-package com.example.lendingmicroservice.repository.impl;
+package com.example.lendingmicroservice.unit.repository;
 
 import com.example.lendingmicroservice.constants.StatusEnum;
 import com.example.lendingmicroservice.entity.LoanOrder;
@@ -28,13 +28,6 @@ public class LoanOrderRepositoryTest {
     private LoanOrderRepository loanOrderRepository;
 
     @Test
-    public void findAll() {
-        //LoanOrder loanOrder1 = creatLoanOrder(1L, uuid1, userId1, 1L, 0.75D, approved, time_insert1, time_update1);
-
-        ArrayList<LoanOrder> loanOrders = new ArrayList<>();
-        //loanOrders.add(new LoanOrder(1L, uuid1, userId1, 1L, 0.75D, approved, time_insert1, time_update1));
-    }
-    @Test
     public void getStatus_shouldGetStatus_whenExistsLoanOrder() {
         String actualStatus = loanOrderRepository.getStatus(uuid2);
 
@@ -45,6 +38,7 @@ public class LoanOrderRepositoryTest {
     @Transactional
     public void updateStatus_shouldSetStatusAndTimeUpdate() {
         loanOrderRepository.updateStatus(uuid1, refused, localDateTimeNow);
+
         String actualLoanOrderStatus = loanOrderRepository.findById(1L).orElseThrow().getStatus();
 
         assertEquals(refused, actualLoanOrderStatus);
@@ -53,6 +47,7 @@ public class LoanOrderRepositoryTest {
     @Transactional
     public void saveLoanOrder() {
         LoanOrder expectedOrder = creatLoanOrder(5L, UUID.fromString("55bb0573-47e8-43e4-84fa-a1b099c2abe5"), 33333333L, 2L, 0.62, in_progress, localDateTimeNow, localDateTimeNow);
+
         int added = loanOrderRepository.saveLoanOrder(
                 expectedOrder.getOrderId(),
                 expectedOrder.getUserId(),
@@ -71,6 +66,7 @@ public class LoanOrderRepositoryTest {
     @Transactional
     public void deleteLoanOrder() {
         int deleted = loanOrderRepository.deleteByUserIdAndOrderId(userId2, uuid2);
+
         LoanOrder actualOrder = loanOrderRepository.findById(2L).orElse(null);
 
         assertEquals(deleted, 1);
@@ -78,21 +74,16 @@ public class LoanOrderRepositoryTest {
     }
 
 
-
-
-
-
     private LoanOrder creatLoanOrder(Long id, UUID orderId, Long userId, Long tariffId, Double creditRating, String status, LocalDateTime timeInsert, LocalDateTime timeUpdate) {
-        LoanOrder loanOrder = new LoanOrder();
-        loanOrder.setId(id);
-        loanOrder.setOrderId(orderId);
-        loanOrder.setUserId(userId);
-        loanOrder.setTariffId(tariffId);
-        loanOrder.setCreditRating(creditRating);
-        loanOrder.setStatus(status);
-        loanOrder.setTimeInsert(timeInsert);
-        loanOrder.setTimeUpdate(timeUpdate);
-        return loanOrder;
+
+        return new LoanOrder().setId(id)
+                .setOrderId(orderId)
+                .setUserId(userId)
+                .setTariffId(tariffId)
+                .setCreditRating(creditRating)
+                .setStatus(status)
+                .setTimeInsert(timeInsert)
+                .setTimeUpdate(timeUpdate);
     }
 
 }

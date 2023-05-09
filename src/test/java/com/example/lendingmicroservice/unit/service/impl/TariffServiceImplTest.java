@@ -1,8 +1,9 @@
-package com.example.lendingmicroservice.service.impl;
+package com.example.lendingmicroservice.unit.service.impl;
 
 import com.example.lendingmicroservice.entity.Tariff;
 import com.example.lendingmicroservice.repository.TariffRepository;
 import com.example.lendingmicroservice.response.exception.BusinessException;
+import com.example.lendingmicroservice.service.impl.TariffServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

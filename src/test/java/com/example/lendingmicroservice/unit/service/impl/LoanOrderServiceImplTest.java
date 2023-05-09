@@ -1,11 +1,11 @@
-package com.example.lendingmicroservice.service.impl;
+package com.example.lendingmicroservice.unit.service.impl;
 
 import com.example.lendingmicroservice.constants.StatusEnum;
-import com.example.lendingmicroservice.entity.LoanOrder;
-import com.example.lendingmicroservice.entity.LoanOrderCreateDTO;
-import com.example.lendingmicroservice.entity.LoanOrderDeleteDTO;
+import com.example.lendingmicroservice.entity.*;
 import com.example.lendingmicroservice.repository.LoanOrderRepository;
 import com.example.lendingmicroservice.response.exception.BusinessException;
+import com.example.lendingmicroservice.service.LoanOrderMapper;
+import com.example.lendingmicroservice.service.impl.LoanOrderServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,10 +30,13 @@ public class LoanOrderServiceImplTest {
     private static final String approved = StatusEnum.APPROVED.toString();
     private static final String refused = StatusEnum.REFUSED.toString();
     private static final String in_progress = StatusEnum.IN_PROGRESS.toString();
+    private static final LocalDateTime time = LocalDateTime.now();
     private static final LoanOrderCreateDTO loanOrderCreateDTO = new LoanOrderCreateDTO(11111111L, 1L);
     private static final LoanOrderDeleteDTO loanOrderDeleteDTO = new LoanOrderDeleteDTO(11111111L, UUID.randomUUID());
     @Mock
     private LoanOrderRepository loanOrderRepository;
+    @Mock
+    private LoanOrderMapper loanOrderMapper;
     @InjectMocks
     private LoanOrderServiceImpl loanOrderService;
 
@@ -79,6 +83,28 @@ public class LoanOrderServiceImplTest {
             loanOrderService.canCreateLoanOrder(loanOrderCreateDTO);
         });
         verify(loanOrderRepository).findByUserIdAndTariffId(loanOrderCreateDTO.getUserId(), loanOrderCreateDTO.getTariffId());
+    }
+
+    @Test
+    public void getOrdersByUserId() {
+        UserDTO userDTO = new UserDTO(123L);
+        LoanOrder loanOrder1 = new LoanOrder().setId(123L).setStatus(refused);
+        LoanOrder loanOrder2 = new LoanOrder().setId(123L).setStatus(approved);
+        List<LoanOrder> listLoanOrder = Arrays.asList(loanOrder1, loanOrder2);
+        LoanOrderToFront loanOrderToFront1 = LoanOrderToFront.builder().orderId(uuid).tariffId(1L).status(refused).timeInsert(time).timeUpdate(time).build();
+        LoanOrderToFront loanOrderToFront2 = LoanOrderToFront.builder().orderId(uuid).tariffId(2L).status(approved).timeInsert(time).timeUpdate(time).build();
+        List<LoanOrderToFront> expectedListLoanOrderToFront = Arrays.asList(loanOrderToFront1, loanOrderToFront2);
+        when(loanOrderRepository.findLoanOrdersToFrontByUserId(123L)).thenReturn(listLoanOrder);
+        when(loanOrderMapper.toFront(loanOrder1)).thenReturn(loanOrderToFront1);
+        when(loanOrderMapper.toFront(loanOrder2)).thenReturn(loanOrderToFront2);
+
+        List<LoanOrderToFront> actualListLoanOrderToFront = loanOrderService.getOrdersByUserId(userDTO);
+
+        assertNotNull(actualListLoanOrderToFront);
+        assertEquals(expectedListLoanOrderToFront, actualListLoanOrderToFront);
+        verify(loanOrderRepository).findLoanOrdersToFrontByUserId(123L);
+        verify(loanOrderMapper).toFront(loanOrder1);
+        verify(loanOrderMapper).toFront(loanOrder2);
     }
 
     @Test

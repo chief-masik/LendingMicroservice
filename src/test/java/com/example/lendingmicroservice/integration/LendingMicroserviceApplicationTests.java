@@ -1,8 +1,9 @@
-package com.example.lendingmicroservice;
+package com.example.lendingmicroservice.integration;
 
 import com.example.lendingmicroservice.constants.StatusEnum;
 import com.example.lendingmicroservice.entity.LoanOrderCreateDTO;
 import com.example.lendingmicroservice.entity.LoanOrderDeleteDTO;
+import com.example.lendingmicroservice.entity.UserDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletContext;
 import org.hamcrest.Matcher;
@@ -50,7 +51,7 @@ class LendingMicroserviceApplicationTests {
 	@Test
 	public void getMapping_getTariffs() throws Exception {
 
-		this.mockMvc.perform(get("/loan-controller/getTariffs"))
+		this.mockMvc.perform(get("/loan-service/getTariffs"))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.tariffs[0].id").value(1))
@@ -65,12 +66,28 @@ class LendingMicroserviceApplicationTests {
 	}
 
 	@Test
+	public void postMapping_getOrders() throws Exception {
+		UserDTO userDTO = new UserDTO(11111111L);
+
+		this.mockMvc.perform(post("/loan-service/getOrders")
+						.content(objectMapper.writeValueAsString(userDTO))
+						.contentType(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.orders[0].orderId").value("80bb0833-47e8-43e4-84fa-a3b045c7abe1"))
+				.andExpect(jsonPath("$.data.orders[0].tariffId").value(1))
+				.andExpect(jsonPath("$.data.orders[0].status").value("APPROVED"))
+				.andExpect(jsonPath("$.data.orders[0].timeInsert").value("2023-04-24T01:36:15"))
+				.andExpect(jsonPath("$.data.orders[0].timeUpdate").value("2023-04-24T01:38:15"));
+	}
+
+	@Test
 	public void postMapping_newOrder_shouldReturnUUID_whenOrderCreated() throws Exception {
 		LoanOrderCreateDTO loanOrderCreateDTO = new LoanOrderCreateDTO(123456789L, 1L);
 
-		this.mockMvc.perform(post("/loan-controller/order")
-					.content(objectMapper.writeValueAsString(loanOrderCreateDTO))
-					.contentType(MediaType.APPLICATION_JSON))
+		this.mockMvc.perform(post("/loan-service/order")
+						.content(objectMapper.writeValueAsString(loanOrderCreateDTO))
+						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.orderId").value(uuidMatcher));
@@ -79,7 +96,7 @@ class LendingMicroserviceApplicationTests {
 	public void postMapping_newOrder_shouldThrowError_whenTariffNotExists() throws Exception {
 		LoanOrderCreateDTO loanOrderCreateDTO = new LoanOrderCreateDTO(123456789L, 12345L);
 
-		this.mockMvc.perform(post("/loan-controller/order")
+		this.mockMvc.perform(post("/loan-service/order")
 						.content(objectMapper.writeValueAsString(loanOrderCreateDTO))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
@@ -91,7 +108,7 @@ class LendingMicroserviceApplicationTests {
 	public void postMapping_newOrder_shouldThrowError_whenStatusApproved() throws Exception {
 		LoanOrderCreateDTO loanOrderCreateDTO = new LoanOrderCreateDTO(11111111L, 1L);
 
-		this.mockMvc.perform(post("/loan-controller/order")
+		this.mockMvc.perform(post("/loan-service/order")
 						.content(objectMapper.writeValueAsString(loanOrderCreateDTO))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
@@ -103,7 +120,7 @@ class LendingMicroserviceApplicationTests {
 	public void postMapping_newOrder_shouldThrowError_whenStatusRefusedAndTimeUpdateLessThan2MinutesAgo() throws Exception {
 		LoanOrderCreateDTO loanOrderCreateDTO = new LoanOrderCreateDTO(22222222L, 2L);
 
-		this.mockMvc.perform(post("/loan-controller/order")
+		this.mockMvc.perform(post("/loan-service/order")
 						.content(objectMapper.writeValueAsString(loanOrderCreateDTO))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
@@ -115,7 +132,7 @@ class LendingMicroserviceApplicationTests {
 	public void postMapping_newOrder_shouldThrowError_whenStatusInProgress() throws Exception {
 		LoanOrderCreateDTO loanOrderCreateDTO = new LoanOrderCreateDTO(33333333L, 3L);
 
-		this.mockMvc.perform(post("/loan-controller/order")
+		this.mockMvc.perform(post("/loan-service/order")
 						.content(objectMapper.writeValueAsString(loanOrderCreateDTO))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
@@ -128,7 +145,7 @@ class LendingMicroserviceApplicationTests {
 	public void getMapping_getStatusOrder_shouldReturnOrderStatus_whenOrderExists() throws Exception {
 		String realOrderId = "80bb0833-47e8-43e4-84fa-a3b045c7abe1";
 
-		this.mockMvc.perform(get("/loan-controller/getStatusOrder")
+		this.mockMvc.perform(get("/loan-service/getStatusOrder")
 						.param("orderId", realOrderId))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -137,7 +154,7 @@ class LendingMicroserviceApplicationTests {
 	@Test
 	public void getMapping_getStatusOrder_shouldReturnError_whenOrderNotExists() throws Exception {
 
-		this.mockMvc.perform(get("/loan-controller/getStatusOrder")
+		this.mockMvc.perform(get("/loan-service/getStatusOrder")
 						.param("orderId", fakeOrderId))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
@@ -149,7 +166,7 @@ class LendingMicroserviceApplicationTests {
 	public void deleteMapping_deleteLoanOrder_shouldReturnStatusOK_whenOrderDeleted() throws Exception {
 		LoanOrderDeleteDTO loanOrderDeleteDTO = new LoanOrderDeleteDTO(44444444L, UUID.fromString("ee7194f2-e908-11ed-a05b-0242ac120003"));
 
-		this.mockMvc.perform(delete("/loan-controller/deleteOrder")
+		this.mockMvc.perform(delete("/loan-service/deleteOrder")
 					.content(objectMapper.writeValueAsString(loanOrderDeleteDTO))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
@@ -159,7 +176,7 @@ class LendingMicroserviceApplicationTests {
 	public void deleteMapping_deleteLoanOrder_shouldReturnError_whenOrderNotDeleted() throws Exception {
 		LoanOrderDeleteDTO loanOrderDeleteDTO = new LoanOrderDeleteDTO(44444444L, UUID.fromString(fakeOrderId));
 
-		this.mockMvc.perform(delete("/loan-controller/deleteOrder")
+		this.mockMvc.perform(delete("/loan-service/deleteOrder")
 						.content(objectMapper.writeValueAsString(loanOrderDeleteDTO))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
