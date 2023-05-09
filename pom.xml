@@ -23,7 +23,8 @@
         <spring.cloud.version>4.0.2</spring.cloud.version>
         <postgreSQL.version>42.6.0</postgreSQL.version>
         <netflix.eureka.version>4.0.1</netflix.eureka.version>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <hibernate.validator.version>8.0.0.Final</hibernate.validator.version>
+        <openapi.version>2.0.4</openapi.version>
     </properties>
     <dependencies>
         <dependency>
@@ -114,7 +115,16 @@
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
             <version>${spring.histryx.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${openapi.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
