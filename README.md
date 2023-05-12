@@ -16,6 +16,7 @@
 * H2
 * Liquibase
 * Swagger
+* JUnit/Mockito
 * ShedLock
 * Hibernate Validator
 * Lombok
