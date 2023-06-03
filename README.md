@@ -5,9 +5,9 @@
 ### В проекте было реализовано 4 микросервиса:
 
 * lending-microservice - сервис, отвечающий за обработку кредитных заявок.
-* eureka-server - сервис, отвечающий за регистрацию и обнаружение микросервисов.
-* api-gateway - сервис, являющийся единой точкой входа для всех пользователей.
-* front-microservice - front-end service с интегрированным Spring Security.
+* eureka-server - сервис, отвечающий за регистрацию и обнаружение микросервисов.(https://github.com/chief-masik/eureka-server-bank-service)
+* api-gateway - сервис, являющийся единой точкой входа для всех пользователей.(https://github.com/chief-masik/api-gateway-bank-service)
+* front-microservice - front-end service с интегрированным Spring Security.(https://github.com/chief-masik/front-microservice)
 
 ### Для реализации проекта использовались такие технологии как:
 
@@ -16,7 +16,9 @@
 * H2
 * Liquibase
 * Swagger
+* JUnit/Mockito
 * ShedLock
+* Hibernate Validator
 * Lombok
 * Thymeleaf
 * И другие
