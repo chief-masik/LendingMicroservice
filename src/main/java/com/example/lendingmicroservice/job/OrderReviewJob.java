@@ -41,9 +41,9 @@ public class OrderReviewJob {
         }
     }
 
-    @Scheduled(cron = "0 */30 * ? * *")
+    @Scheduled(cron = "*/30 * * ? * *")
     @CacheEvict(cacheNames = "cacheGetStatusOrder", allEntries = true)
     public void evictCacheGetStatus() {
-        log.info("кэш метода getStatusOrder очистился");
+        //log.info("кэш метода getStatusOrder очистился");
     }
 }
