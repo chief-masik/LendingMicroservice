@@ -15,11 +15,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      #- name: Build with Maven
-      #  run: mvn clean install --quiet
-
       - name: Run Unit Tests
-        run: mvn test -Dtest=unit/**
+        run: mvn -Dtest=unit/** test --quiet
 
       - name: Run Integration Tests
-        run: mvn test -Dtest=com/example/lendingmicroservice/integration/**
+        run: mvn -Dtest=integration/** test
